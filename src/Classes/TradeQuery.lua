@@ -355,6 +355,16 @@ Highest Weight - Displays the order retrieved from trade]]
 	end)
 	self.controls.enchantInSort.tooltipText = "This includes enchants in sorting that occurs after trade results have been retrieved"
 
+	-- Use Runes in DPS sorting
+	self.controls.runesInSort = new("CheckBoxControl", {"TOPRIGHT",self.controls.enchantInSort,"TOPLEFT"}, {-124, 0, row_height}, "Include Runes:", function(state)
+		self.runesInSort = state
+		for row_idx, _ in pairs(self.resultTbl) do
+			self:UpdateControlsWithItems(row_idx)
+		end
+	end)
+	self.controls.runesInSort.state = true
+	self.controls.runesInSort.tooltipText = "This includes runes in sorting that occurs after trade results have been retrieved"
+
 	self.controls.updateCurrencyConversion = new("ButtonControl", {"BOTTOMLEFT", nil, "BOTTOMLEFT"}, {pane_margins_horizontal, -pane_margins_vertical, 240, row_height}, "Get Currency Conversion Rates", function()
 		-- self:PullPoENinjaCurrencyConversion(self.pbLeague)
 	end)
@@ -717,6 +727,12 @@ function TradeQueryClass:GetResultEvaluation(row_idx, result_index, calcFunc, ba
 		local item = new("Item", result.item_string)
 		if not self.enchantInSort then -- Calc item DPS without anoint or enchant as these can generally be added after.
 			item.enchantModLines = { }
+		end
+		if not self.runesInSort then
+			item.runeModLines = { }
+			item.runes = { }
+		end
+		if not (self.enchantInSort and self.runesInSort) then
 			item:BuildAndParseRaw()
 		end
 		local output = self:ReduceOutput(calcFunc({ repSlotName = slotName, repItem = item }))
